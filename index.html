@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字交叉配對產生器</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between font-sans">
+
+    <main class="max-w-4xl w-full mx-auto p-4 md:p-8 flex-grow">
+        <header class="mb-8 text-center md:text-left">
+            <h1 class="text-3xl font-extrabold text-indigo-600 flex items-center justify-center md:justify-start gap-2">
+                <i class="fa-solid fa-code-merge"></i> 文字交叉配對產生器
+            </h1>
+            <p class="text-slate-500 mt-2 text-sm">輸入以逗號（,）分隔的文字，自動生成 A + B 的所有組合配對。</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="space-y-4">
+                <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200">
+                    <label for="inputA" class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                        <span class="w-5 h-5 bg-indigo-100 text-indigo-600 rounded-md flex items-center justify-center text-xs">A</span>
+                        欄位文字 (以逗號分隔)
+                    </label>
+                    <textarea id="inputA" rows="4" 
+                        class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-sm resize-none"
+                        placeholder="例如：紅色, 藍色, 綠色">紅色, 藍色, 綠色</textarea>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200">
+                    <label for="inputB" class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                        <span class="w-5 h-5 bg-emerald-100 text-emerald-600 rounded-md flex items-center justify-center text-xs">B</span>
+                        欄位文字 (以逗號分隔)
+                    </label>
+                    <textarea id="inputB" rows="4" 
+                        class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-sm resize-none"
+                        placeholder="例如：蘋果, 香蕉">蘋果, 香蕉</textarea>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 flex flex-col h-full min-h-[380px]">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-list-ul text-slate-400"></i>
+                        配對結果 (<span id="resultCount" class="text-indigo-600 font-bold">0</span> 組)
+                    </h3>
+                    <button id="copyBtn" class="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-copy"></i> <span>複製全部</span>
+                    </button>
+                </div>
+                
+                <textarea id="outputResult" readonly 
+                    class="w-full flex-grow p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-600 outline-none resize-none placeholder-slate-400"
+                    placeholder="等待輸入中..."></textarea>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-100">
+        Powered by GitHub Pages & Tailwind CSS
+    </footer>
+
+    <script>
+        const inputA = document.getElementById('inputA');
+        const inputB = document.getElementById('inputB');
+        const outputResult = document.getElementById('outputResult');
+        const resultCount = document.getElementById('resultCount');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // 核心配對邏輯
+        function generatePairs() {
+            // 讀取並處理字串：以逗號分隔、去除前後空白、過濾掉空字串
+            const listA = inputA.value.split(',').map(item => item.trim()).filter(item => item !== "");
+            const listB = inputB.value.split(',').map(item => item.trim()).filter(item => item !== "");
+            
+            const pairs = [];
+
+            // 雙重迴圈進行 A+B 交叉配對
+            for (let i = 0; i < listA.length; i++) {
+                for (let j = 0; j < listB.length; j++) {
+                    pairs.push(`${listA[i]}${listB[j]}`);
+                }
+            }
+
+            // 更新 UI 畫面
+            outputResult.value = pairs.join('\n');
+            resultCount.textContent = pairs.length;
+        }
+
+        // 一鍵複製功能 (提升 UX)
+        function copyToClipboard() {
+            if (!outputResult.value) return;
+            
+            navigator.clipboard.writeText(outputResult.value).then(() => {
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = `<i class="fa-solid fa-check text-emerald-500"></i> <span class="text-emerald-600 font-medium">已複製！</span>`;
+                copyBtn.classList.add('bg-emerald-50');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.classList.remove
